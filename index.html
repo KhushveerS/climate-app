@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b3d91">
+  <title>Climate & Weather</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  >
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">🌤️</span>
+      <h1>Climate & Weather</h1>
+    </div>
+    <div class="actions">
+      <button id="use-location" class="primary">Use my location</button>
+      <form id="search-form" autocomplete="off" role="search" aria-label="Search city">
+        <input id="search-input" type="search" placeholder="Search city or address" aria-label="Search city or address">
+        <button type="submit">Search</button>
+      </form>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="panel" id="location-panel">
+      <h2 class="panel-title">Location</h2>
+      <div id="location-name" class="location-name">—</div>
+      <div id="coords" class="coords" aria-live="polite"></div>
+    </section>
+
+    <section class="panel" id="current-panel">
+      <h2 class="panel-title">Current Conditions</h2>
+      <div class="current-grid">
+        <div class="current-main">
+          <div id="current-temp" class="temp">—</div>
+          <div id="current-summary" class="summary">—</div>
+        </div>
+        <ul class="metrics">
+          <li><span>Feels like</span><strong id="apparent-temp">—</strong></li>
+          <li><span>Humidity</span><strong id="humidity">—</strong></li>
+          <li><span>Wind</span><strong id="wind">—</strong></li>
+          <li><span>Precip prob</span><strong id="precip-prob">—</strong></li>
+          <li><span>UV Index</span><strong id="uv">—</strong></li>
+          <li><span>US AQI</span><strong id="aqi">—</strong></li>
+          <li><span>PM2.5</span><strong id="pm25">—</strong></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel" id="unique-panel">
+      <h2 class="panel-title">Insights</h2>
+      <div class="insights">
+        <div class="insight">
+          <h3>Commute Comfort Score</h3>
+          <div class="score" id="commute-score">—</div>
+          <p id="commute-notes" class="notes">—</p>
+        </div>
+        <div class="insight">
+          <h3>AC Efficiency Advisor</h3>
+          <div class="score small" id="ac-advice">—</div>
+          <p id="ac-notes" class="notes">—</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="hourly-panel">
+      <h2 class="panel-title">Next 24h</h2>
+      <div id="hourly" class="hourly"></div>
+    </section>
+
+    <section class="panel" id="map-panel">
+      <h2 class="panel-title">Map – Click to inspect</h2>
+      <div id="map" aria-label="Weather map"></div>
+      <div class="time-slider">
+        <label for="time-slider" class="panel-title">Hour</label>
+        <input id="time-slider" type="range" min="0" max="23" step="1" value="0" />
+        <span id="time-label" aria-live="polite">Now</span>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <small>
+      Data: Open‑Meteo, OpenStreetMap Nominatim. Map data © OpenStreetMap contributors · Map © Leaflet · Tiles © CARTO. This app works offline after first load.
+    </small>
+  </footer>
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+    defer
+  ></script>
+  <script src="script.js" defer></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
+

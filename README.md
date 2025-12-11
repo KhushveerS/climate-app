@@ -6,6 +6,7 @@ A lightweight, offline-capable climate and weather web app with unique insights 
 - AC Efficiency Advisor: suggests an energy-saving thermostat setpoint based on current outdoor conditions.
 - UV Index: current and hourly UV badges.
 - Disaster overlays: USGS earthquakes and NASA EONET natural events on the map.
+- Disaster information panel: Click the 'Disaster Info' button to view current disaster data in a dedicated panel.
 - Time slider: scrub through the next 24h to inspect temp/UV/rain at the selected point.
 - Works offline after first load; caches last fetched data for quick startup.
 - MongoDB integration for storing location history and weather data.

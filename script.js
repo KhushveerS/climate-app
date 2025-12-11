@@ -20,6 +20,13 @@ const dom = {
   acNotes: document.getElementById('ac-notes')
 };
 
+// Disaster info elements
+const disasterInfoButton = document.getElementById('disaster-info');
+const disasterModal = document.getElementById('disaster-modal');
+const closeModalButton = document.getElementById('close-modal');
+const earthquakesList = document.getElementById('earthquakes-list');
+const eventsList = document.getElementById('events-list');
+
 const storageKeys = {
   lastPlace: 'climate.lastPlace',
   lastData: 'climate.lastData'
@@ -412,6 +419,125 @@ async function displayRecentLocations() {
   } catch (error) {
     console.error('Error displaying recent locations:', error);
   }
+}
+
+// Format disaster data for display
+function formatEarthquakeData(earthquakes) {
+  if (!earthquakes || !earthquakes.features) return '<p>No earthquake data available</p>';
+  
+  if (earthquakes.features.length === 0) return '<p>No recent earthquakes reported</p>';
+  
+  // Sort by magnitude (highest first) and take top 10
+  const sorted = earthquakes.features
+    .sort((a, b) => (b.properties.mag || 0) - (a.properties.mag || 0))
+    .slice(0, 10);
+  
+  let html = '';
+  sorted.forEach(eq => {
+    const mag = eq.properties.mag || 'Unknown';
+    const place = eq.properties.place || 'Unknown location';
+    const time = new Date(eq.properties.time).toLocaleString();
+    const [longitude, latitude, depth] = eq.geometry.coordinates;
+    
+    html += `
+      <div class="disaster-item">
+        <strong>Magnitude ${mag} - ${place}</strong>
+        <small>Depth: ${depth ? depth.toFixed(1) + ' km' : 'Unknown'} | Time: ${time}</small>
+      </div>
+    `;
+  });
+  
+  return html || '<p>No earthquake data available</p>';
+}
+
+function formatEventData(events) {
+  if (!events || !events.events) return '<p>No event data available</p>';
+  
+  if (events.events.length === 0) return '<p>No active events reported</p>';
+  
+  // Take the 10 most recent events
+  const recent = events.events.slice(0, 10);
+  
+  let html = '';
+  recent.forEach(event => {
+    const title = event.title || 'Unnamed event';
+    const categories = event.categories?.map(c => c.title).join(', ') || 'Uncategorized';
+    
+    // Get the most recent geometry
+    let date = 'Unknown date';
+    if (event.geometries && event.geometries.length > 0) {
+      const lastGeom = event.geometries[event.geometries.length - 1];
+      if (lastGeom.date) {
+        date = new Date(lastGeom.date).toLocaleString();
+      }
+    }
+    
+    html += `
+      <div class="disaster-item">
+        <strong>${title}</strong>
+        <small>Category: ${categories} | Date: ${date}</small>
+      </div>
+    `;
+  });
+  
+  return html || '<p>No event data available</p>';
+}
+
+// Display disaster information in modal
+async function displayDisasterInfo() {
+  // Show loading states
+  earthquakesList.innerHTML = '<p>Loading earthquake data...</p>';
+  eventsList.innerHTML = '<p>Loading natural events data...</p>';
+  
+  // Show modal
+  disasterModal.style.display = 'block';
+  
+  try {
+    // Fetch both datasets in parallel
+    const [usgsResponse, eonetResponse] = await Promise.allSettled([
+      fetchUSGSEarthquakes(),
+      fetchEONETEvents()
+    ]);
+    
+    // Update earthquake section
+    if (usgsResponse.status === 'fulfilled') {
+      earthquakesList.innerHTML = formatEarthquakeData(usgsResponse.value);
+    } else {
+      earthquakesList.innerHTML = '<p>Failed to load earthquake data</p>';
+    }
+    
+    // Update events section
+    if (eonetResponse.status === 'fulfilled') {
+      eventsList.innerHTML = formatEventData(eonetResponse.value);
+    } else {
+      eventsList.innerHTML = '<p>Failed to load natural events data</p>';
+    }
+  } catch (error) {
+    console.error('Error fetching disaster data:', error);
+    earthquakesList.innerHTML = '<p>Error loading data</p>';
+    eventsList.innerHTML = '<p>Error loading data</p>';
+  }
+}
+
+// Close modal when clicking the X
+if (closeModalButton) {
+  closeModalButton.addEventListener('click', () => {
+    disasterModal.style.display = 'none';
+  });
+}
+
+// Close modal when clicking outside of it
+if (disasterModal) {
+  disasterModal.addEventListener('click', (event) => {
+    if (event.target === disasterModal) {
+      disasterModal.style.display = 'none';
+    }
+  });
+}
+
+// Open modal when disaster info button is clicked
+if (disasterInfoButton) {
+  disasterInfoButton.addEventListener('click', displayDisasterInfo);
 }
 
 // Periodically update recent locations

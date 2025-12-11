@@ -26,6 +26,7 @@
         <input id="search-input" type="search" placeholder="Search city or address" aria-label="Search city or address">
         <button type="submit">Search</button>
       </form>
+      <button id="disaster-info" class="disaster-btn">Disaster Info</button>
       <div id="recent-locations" class="recent-locations"></div>
     </div>
   </header>
@@ -93,6 +94,30 @@
       Data: Open‑Meteo, OpenStreetMap Nominatim. Map data © OpenStreetMap contributors · Map © Leaflet · Tiles © CARTO. This app works offline after first load.
     </small>
   </footer>
+
+  <!-- Disaster Information Modal -->
+  <div id="disaster-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Active Disasters & Events</h2>
+        <span class="close" id="close-modal">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="disaster-section">
+          <h3>Earthquakes <span class="badge bad">USGS</span></h3>
+          <div id="earthquakes-list" class="disaster-list">
+            <p>Loading earthquake data...</p>
+          </div>
+        </div>
+        <div class="disaster-section">
+          <h3>Natural Events <span class="badge warn">NASA EONET</span></h3>
+          <div id="events-list" class="disaster-list">
+            <p>Loading natural events data...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"

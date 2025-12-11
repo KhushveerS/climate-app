@@ -34,6 +34,7 @@ This document summarizes all the changes made to implement MongoDB integration i
 - Functions to save locations and weather data to MongoDB
 - Functions to retrieve locations from MongoDB
 - Recent locations display in the UI
+- Disaster information panel in the navbar
 - Graceful fallback to localStorage when MongoDB is unavailable
 
 ### Developer Tools

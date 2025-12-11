@@ -26,6 +26,7 @@
         <input id="search-input" type="search" placeholder="Search city or address" aria-label="Search city or address">
         <button type="submit">Search</button>
       </form>
+      <div id="recent-locations" class="recent-locations"></div>
     </div>
   </header>
 
@@ -100,6 +101,7 @@
     defer
   ></script>
   <script src="script.js" defer></script>
+  <script src="init.js" defer></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

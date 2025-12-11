@@ -25,6 +25,15 @@ const storageKeys = {
   lastData: 'climate.lastData'
 };
 
+// API base URL - defaults to localhost for development
+const API_BASE_URL = 'http://localhost:3000/api';
+
+// Check if we're running in a server environment
+const isServerAvailable = () => {
+  // This will be updated based on whether we can connect to our backend
+  return true;
+};
+
 function saveToStorage(key, value) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch (_) {}
 }
@@ -33,6 +42,79 @@ function readFromStorage(key, fallback) {
     const raw = localStorage.getItem(key);
     return raw ? JSON.parse(raw) : fallback;
   } catch (_) { return fallback; }
+}
+
+// Save location to MongoDB
+async function saveLocationToDB(place, lat, lon) {
+  if (!isServerAvailable()) return null;
+  
+  try {
+    const response = await fetch(`${API_BASE_URL}/locations`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: place,
+        latitude: lat,
+        longitude: lon
+      })
+    });
+    
+    if (!response.ok) return null;
+    return await response.json();
+  } catch (error) {
+    console.error('Error saving location to DB:', error);
+    return null;
+  }
+}
+
+// Save weather data to MongoDB
+async function saveWeatherDataToDB(locationId, weatherData, airData) {
+  if (!isServerAvailable() || !locationId) return null;
+  
+  try {
+    const current = weatherData.current;
+    const airCurrent = airData?.current || {};
+    
+    const response = await fetch(`${API_BASE_URL}/weather`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        location: locationId,
+        temperature: current.temperature_2m,
+        apparentTemperature: current.apparent_temperature,
+        humidity: current.relative_humidity_2m,
+        windSpeed: current.wind_speed_10m,
+        precipitationProbability: current.precipitation_probability,
+        uvIndex: current.uv_index,
+        aqi: airCurrent.us_aqi,
+        pm25: airCurrent.pm2_5
+      })
+    });
+    
+    if (!response.ok) return null;
+    return await response.json();
+  } catch (error) {
+    console.error('Error saving weather data to DB:', error);
+    return null;
+  }
+}
+
+// Get locations from MongoDB
+async function getLocationsFromDB() {
+  if (!isServerAvailable()) return [];
+  
+  try {
+    const response = await fetch(`${API_BASE_URL}/locations`);
+    if (!response.ok) return [];
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching locations from DB:', error);
+    return [];
+  }
 }
 
 function formatNumber(value, digits = 0) {
@@ -244,6 +326,14 @@ async function loadAndRender(place, lat, lon) {
     updateUI(place, lat, lon, weatherData, airData);
     saveToStorage(storageKeys.lastPlace, { place, lat, lon });
     saveToStorage(storageKeys.lastData, { weatherData, airData, timestamp: Date.now() });
+    
+    // Save to MongoDB if server is available
+    if (isServerAvailable()) {
+      const locationResult = await saveLocationToDB(place, lat, lon);
+      if (locationResult && locationResult._id) {
+        await saveWeatherDataToDB(locationResult._id, weatherData, airData);
+      }
+    }
   } catch (err) {
     dom.locationName.textContent = place;
     dom.currentSummary.textContent = 'Failed to load data';
@@ -287,9 +377,53 @@ function restoreLastSession() {
   }
 }
 
+// Display recent locations from MongoDB
+async function displayRecentLocations() {
+  const recentLocationsContainer = document.getElementById('recent-locations');
+  if (!recentLocationsContainer || !isServerAvailable()) return;
+  
+  try {
+    const locations = await getLocationsFromDB();
+    if (!locations.length) return;
+    
+    // Show only the 5 most recent locations
+    const recent = locations.slice(-5);
+    
+    // Clear container
+    recentLocationsContainer.innerHTML = '';
+    
+    // Add title
+    const title = document.createElement('div');
+    title.textContent = 'Recent:';
+    title.style.fontSize = '12px';
+    title.style.color = 'var(--muted)';
+    title.style.marginRight = '8px';
+    title.style.alignSelf = 'center';
+    recentLocationsContainer.appendChild(title);
+    
+    // Add buttons for each location
+    recent.forEach(location => {
+      const button = document.createElement('button');
+      button.textContent = location.name.length > 20 ? location.name.substring(0, 17) + '...' : location.name;
+      button.title = location.name;
+      button.onclick = () => loadAndRender(location.name, location.latitude, location.longitude);
+      recentLocationsContainer.appendChild(button);
+    });
+  } catch (error) {
+    console.error('Error displaying recent locations:', error);
+  }
+}
+
+// Periodically update recent locations
+setInterval(displayRecentLocations, 30000); // Every 30 seconds
+
+// Event listeners
 dom.useLocationButton.addEventListener('click', handleUseLocation);
 dom.searchForm.addEventListener('submit', handleSearchSubmit);
+
+// Initialize
 restoreLastSession();
+displayRecentLocations();
 
 // Map integration using Leaflet
 let map, marker;

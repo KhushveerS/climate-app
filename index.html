@@ -27,6 +27,9 @@
         <button type="submit">Search</button>
       </form>
       <button id="disaster-info" class="disaster-btn">Disaster Info</button>
+      <button id="advisory-info" class="advisory-btn">Travel Advisory</button>
+      <button id="ai-travel-advisor" class="ai-advisor-btn">AI Travel Advisor</button>
+      <button id="weather-charts" class="charts-btn">Weather Charts</button>
       <div id="recent-locations" class="recent-locations"></div>
     </div>
   </header>
@@ -73,6 +76,30 @@
       </div>
     </section>
 
+    <section class="panel" id="energy-panel">
+      <h2 class="panel-title">Energy Insights</h2>
+      <div class="energy-insights">
+        <div class="energy-card">
+          <h3>🌡️ Heating/Cooling Needs</h3>
+          <div id="heating-cooling-status" class="energy-status">—</div>
+          <div id="heating-cooling-details" class="energy-details">—</div>
+          <div id="heating-cooling-recommendations" class="energy-recommendations">—</div>
+        </div>
+        <div class="energy-card">
+          <h3>☀️ Solar Potential</h3>
+          <div id="solar-potential-status" class="energy-status">—</div>
+          <div id="solar-potential-details" class="energy-details">—</div>
+          <div id="solar-recommendations" class="energy-recommendations">—</div>
+        </div>
+        <div class="energy-card">
+          <h3>💰 Energy Cost Estimates</h3>
+          <div id="energy-cost-status" class="energy-status">—</div>
+          <div id="energy-cost-details" class="energy-details">—</div>
+          <div id="energy-cost-breakdown" class="energy-recommendations">—</div>
+        </div>
+      </div>
+    </section>
+
     <section class="panel" id="hourly-panel">
       <h2 class="panel-title">Next 24h</h2>
       <div id="hourly" class="hourly"></div>
@@ -90,9 +117,7 @@
   </main>
 
   <footer class="app-footer">
-    <small>
-      Data: Open‑Meteo, OpenStreetMap Nominatim. Map data © OpenStreetMap contributors · Map © Leaflet · Tiles © CARTO. This app works offline after first load.
-    </small>
+    
   </footer>
 
   <!-- Disaster Information Modal -->
@@ -119,12 +144,122 @@
     </div>
   </div>
 
+  <!-- Travel Advisory Modal -->
+  <div id="advisory-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Government Travel Advisories</h2>
+        <span class="close" id="close-advisory-modal">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="advisory-section">
+          <h3>Select Country/Region</h3>
+          <select id="country-select" class="country-select">
+            <option value="">Select a country...</option>
+            <option value="IN">India</option>
+            <option value="US">United States</option>
+            <option value="CA">Canada</option>
+            <option value="GB">United Kingdom</option>
+            <option value="AU">Australia</option>
+            <option value="JP">Japan</option>
+            <option value="DE">Germany</option>
+            <option value="FR">France</option>
+          </select>
+          <button id="get-advisory" class="primary">Get Advisory</button>
+        </div>
+        <div class="advisory-section">
+          <h3>Advisory Information</h3>
+          <div id="advisory-content" class="advisory-content">
+            <p>Select a country to view government travel advisories.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Travel Advisor Modal -->
+  <div id="ai-advisor-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>AI Travel Advisor</h2>
+        <span class="close" id="close-ai-advisor-modal">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="ai-advisor-section">
+          <h3>Ask for Travel Recommendations</h3>
+          <textarea id="ai-advisor-prompt" class="ai-prompt-input" placeholder="Describe your travel plans, preferences, or ask for recommendations..."></textarea>
+          <button id="get-ai-advice" class="primary">Get AI Advice</button>
+        </div>
+        <div class="ai-advisor-section">
+          <h3>Travel Recommendations</h3>
+          <div id="ai-advisor-response" class="ai-advisor-response">
+            <p>Enter your travel query to get personalized AI-powered recommendations.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weather Charts Modal -->
+  <div id="weather-charts-modal" class="modal">
+    <div class="modal-content" style="max-width: 95%; max-height: 95vh; overflow-y: auto;">
+      <div class="modal-header">
+        <h2>Historical Weather Charts & Patterns</h2>
+        <span class="close" id="close-charts-modal">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="charts-controls" style="margin-bottom: 20px; padding: 15px; background: #f5f5f5; border-radius: 8px;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
+            <div>
+              <label for="charts-location" style="display: block; margin-bottom: 5px; font-weight: bold;">Location:</label>
+              <input type="text" id="charts-location" placeholder="City or coordinates" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label for="charts-year" style="display: block; margin-bottom: 5px; font-weight: bold;">Year:</label>
+              <select id="charts-year" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+                <option value="2022">2022</option>
+                <option value="2021">2021</option>
+                <option value="2020">2020</option>
+              </select>
+            </div>
+            <div>
+              <label for="charts-compare-year" style="display: block; margin-bottom: 5px; font-weight: bold;">Compare with:</label>
+              <select id="charts-compare-year" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">None (single year)</option>
+                <option value="2023">2023</option>
+                <option value="2022">2022</option>
+                <option value="2021">2021</option>
+                <option value="2020">2020</option>
+              </select>
+            </div>
+            <div>
+              <label for="charts-type" style="display: block; margin-bottom: 5px; font-weight: bold;">Chart Type:</label>
+              <select id="charts-type" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="temperature">Temperature</option>
+                <option value="rainfall">Rainfall</option>
+                <option value="wind">Wind Patterns</option>
+                <option value="all">All Charts</option>
+              </select>
+            </div>
+          </div>
+          <button id="load-charts" class="primary" style="width: 100%; padding: 12px; font-size: 16px;">Load Weather Charts</button>
+        </div>
+        <div id="charts-container" style="display: grid; gap: 20px;">
+          <p style="text-align: center; color: #666;">Enter a location and click "Load Weather Charts" to view historical weather patterns.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""
     defer
   ></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="script.js" defer></script>
   <script src="init.js" defer></script>
   <script>

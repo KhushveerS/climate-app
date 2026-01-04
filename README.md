@@ -7,6 +7,8 @@ A lightweight, offline-capable climate and weather web app with unique insights 
 - UV Index: current and hourly UV badges.
 - Disaster overlays: USGS earthquakes and NASA EONET natural events on the map.
 - Disaster information panel: Click the 'Disaster Info' button to view current disaster data in a dedicated panel.
+- Government travel advisories: Click the 'Travel Advisory' button to view country-specific safety recommendations.
+- AI Travel Advisor: Click the 'AI Travel Advisor' button to get personalized travel recommendations powered by Google Gemini AI, enhanced with current location and weather data.
 - Time slider: scrub through the next 24h to inspect temp/UV/rain at the selected point.
 - Works offline after first load; caches last fetched data for quick startup.
 - MongoDB integration for storing location history and weather data.
